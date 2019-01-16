@@ -12,7 +12,7 @@ import android.widget.Toast
  * @describe TODO
  * @project
  */
-fun Activity.toast(text: String, context: Context = applicationContext, time: Int = Toast.LENGTH_SHORT) {
+fun Context.toast(text: String, context: Context = applicationContext, time: Int = Toast.LENGTH_SHORT) {
     if (TextUtils.isEmpty(text)) {
         return
     }

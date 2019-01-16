@@ -7,7 +7,7 @@ android {
         config {
             keyAlias 'plugin'
             keyPassword '123456'
-            storeFile file('wxplugin.jks')
+            storeFile file('/Users/zhuozhuo/WXMoneyPlugin/wxplugin.jks')
             storePassword '123456'
         }
     }
