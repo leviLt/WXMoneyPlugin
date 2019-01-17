@@ -128,13 +128,20 @@ class RedPacketService : AccessibilityService() {
      * 发现红包进入聊天界面
      */
     private fun goChatSurface(event: AccessibilityEvent) {
-        val nodeInfosByText = rootInActiveWindow.findAccessibilityNodeInfosByText(WX_FriendSend_RedPacket_ForList_Tip)
-        if (nodeInfosByText != null && nodeInfosByText.size > 0) {
-            nodeInfosByText.forEach {
-                it.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                if (it.parent != null && it.parent.isCheckable) {
-                    it.parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                }
+        val info = rootInActiveWindow ?: return
+        //检查是否有红包字样
+        recycle(info)
+    }
+
+    private fun recycle(info: AccessibilityNodeInfo) {
+        if (info.childCount == 0) {
+            Log.log("child weight -------${info.className}")
+            Log.log("text         -------${info.text}")
+            Log.log("windowId     -------${info.windowId}")
+        }
+        for (i in 0 until info.childCount) {
+            if (info.getChild(i) != null) {
+                recycle(info.getChild(i))
             }
         }
     }
@@ -143,10 +150,7 @@ class RedPacketService : AccessibilityService() {
      * 点开红包
      */
     private fun getRedPacked() {
-        val accessibilityNodeInfo = rootInActiveWindow
-        if (accessibilityNodeInfo == null) {
-            return
-        }
+        val accessibilityNodeInfo = rootInActiveWindow ?: return
         val list = accessibilityNodeInfo.findAccessibilityNodeInfosByText(WX_Friend_Send_RedPacket_TIP)
         if (list == null || list.size <= 0) {
             return
@@ -167,70 +171,5 @@ class RedPacketService : AccessibilityService() {
             it.performAction(AccessibilityNodeInfo.ACTION_CLICK)
             it.parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         }
-        /*
-        val displayMetrics = resources.displayMetrics
-        val dpi = displayMetrics.densityDpi
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-            toast("Android 7.0一下暂时不支持")
-            return
-        }
-        if (!openPacketFlag) {
-            openPacketFlag = true
-            var path = Path()
-            var x = 0f
-            var y = 0f
-            when (dpi) {
-                320 -> {//720
-                    x = 355f
-                    x = 780f
-                }
-                440 -> {//1080*2160
-                    x = 450f
-                    y = 1250f
-                }
-                480 -> {//1080
-                    x = 533f
-                    y = 1115f
-                }
-
-                640 -> {//1440
-                    x = 750f
-                    y = 1575f
-                }
-            }
-            if (Build.BOARD == "")
-                if (WX_versionCode == WX_7_VERCODE) {
-                    y += 0.15.toFloat() * y
-                }
-            when (0f) {
-                //如果为0，按照1080p处理
-                x, y -> {
-                    x = 533f
-                    y = 1250f
-                }
-            }
-            path.moveTo(x, y)
-            try {
-                val gestureDescription = GestureDescription.Builder()
-                val description = gestureDescription.addStroke(GestureDescription.StrokeDescription(path, 450, 50)).build()
-                dispatchGesture(description, @RequiresApi(Build.VERSION_CODES.N)
-                object : GestureResultCallback() {
-                    override fun onCancelled(gestureDescription: GestureDescription?) {
-                        Log.log("gestureDescription : onCancelled")
-                        openPacketFlag = false
-                        super.onCancelled(gestureDescription)
-                    }
-
-                    override fun onCompleted(gestureDescription: GestureDescription?) {
-                        openPacketFlag = false
-                        Log.log("gestureDescription : onCompleted")
-                    }
-                }, null)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                openPacketFlag = false
-            }
-        }
-        */
     }
 }
