@@ -4,12 +4,14 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.Notification
 import android.opengl.Visibility
+import android.text.TextUtils
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.TextView
 import com.wechatplugin.scropio.wxmoneyplugin.utils.Log
 import com.wechatplugin.scropio.wxmoneyplugin.utils.WXUtils
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 微信的包名
@@ -90,7 +92,7 @@ class RedPacketService : AccessibilityService() {
         }
     }
 
-
+    @Synchronized
     private fun handleNotificationEvent(event: AccessibilityEvent) {
         val tip = event.text.toString()
         if (tip.contains(WX_Notification_Tip, true)) {
@@ -102,12 +104,12 @@ class RedPacketService : AccessibilityService() {
         }
     }
 
-
+    @Synchronized
     private fun handleWindowEvent(event: AccessibilityEvent) {
         when (currentActivityName) {
             //红包弹窗界面
             WX_Red_Packet_UI, WX_Red_Packet_UI_7 -> {
-
+                openRetPacked()
             }
             //聊天界面或聊天列表界面
             WX_Chat_Launch_UI -> {
@@ -119,7 +121,7 @@ class RedPacketService : AccessibilityService() {
             }
             //红包详情UI
             WX_Red_Packet_Detail_UI -> {
-
+                performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
             }
         }
     }
@@ -127,6 +129,7 @@ class RedPacketService : AccessibilityService() {
     /**
      * 发现红包进入聊天界面
      */
+    @Synchronized
     private fun goChatSurface(event: AccessibilityEvent) {
         val info = rootInActiveWindow ?: return
         //检查是否有红包字样
@@ -147,11 +150,12 @@ class RedPacketService : AccessibilityService() {
     }
 
     /**
-     * 点开红包
+     * 打开红包弹窗
      */
+    @Synchronized
     private fun getRedPacked() {
         val accessibilityNodeInfo = rootInActiveWindow ?: return
-        val list = accessibilityNodeInfo.findAccessibilityNodeInfosByText(WX_Friend_Send_RedPacket_TIP)
+        val list = accessibilityNodeInfo.findAccessibilityNodeInfosByText(WECHAT_PACKEY_TIP)
         if (list == null || list.size <= 0) {
             return
         }
@@ -159,17 +163,85 @@ class RedPacketService : AccessibilityService() {
             if (it.parent == null) {
                 return
             }
-            val childCount = it.parent.childCount
-            for (i in 0 until childCount) {
-                if (it.parent.getChild(i).text == null) {
-                    break
+            it.parent?.parent?.apply {
+                accessibilityNodeInfo.findAccessibilityNodeInfosByText("已领取")?.run {
+                    if (!isEmpty()) {
+                        var isContain = AtomicBoolean(false)
+                        isContainChildView(this@apply, this, isContain)
+                        if (isContain.get()) {
+                            return@apply
+                        }
+                    }
+                    accessibilityNodeInfo.findAccessibilityNodeInfosByText("已被领完")?.run {
+                        if (!isEmpty()) {
+                            var isContain = AtomicBoolean(false)
+                            isContainChildView(this@apply, this, isContain)
+                            if (isContain.get()) {
+                                return@apply
+                            }
+                        }
+                    }
+                    performAction(AccessibilityNodeInfo.ACTION_CLICK)
                 }
-                if (it.parent.getChild(i).text.contains(WX_Already_Open)) {
-                    return
+
+            }
+        }
+    }
+
+    /**
+     * 点开 抢红包 開 开
+     */
+    @Synchronized
+    fun openRetPacked() {
+        windows?.apply {
+            forEach {
+                it.root?.apply {
+                    open(this)
                 }
             }
-            it.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-            it.parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        }
+
+    }
+
+    /**
+     * 判断子View中是否含有已经领取红包  已经领取了则不打开
+     */
+    private fun isContainChildView(parent: AccessibilityNodeInfo, child: List<AccessibilityNodeInfo>, isContain: AtomicBoolean) {
+        parent.childCount > 0.apply {
+            for (i in 0 until parent.childCount) {
+                parent.getChild(i)?.childCount?.apply {
+                    if (this > 0) {
+                        isContainChildView(parent.getChild(i), child, isContain)
+                    } else {
+                        for (j in 0 until child.size) {
+                            isContain.apply {
+                                if (child[j] == parent.getChild(i)) {
+                                    set(true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 打开红包   找到节点为button的直接打开
+     */
+    private fun open(noteInfo: AccessibilityNodeInfo) {
+        noteInfo.apply {
+            if (childCount > 0) {
+                for (i in 0 until childCount) {
+                    noteInfo.getChild(i)?.apply {
+                        open(this)
+                    }
+                }
+            } else {
+                if (className == "android.widget.Button") {
+                    noteInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                }
+            }
         }
     }
 }

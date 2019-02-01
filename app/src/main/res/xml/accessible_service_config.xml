@@ -7,5 +7,5 @@
     android:packageNames="com.tencent.mm"
     android:notificationTimeout="500"
     android:settingsActivity="com.wechatplugin.scropio.wxmoneyplugin.MainActivity"
-    android:accessibilityFlags="flagDefault"
+    android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows|flagIncludeNotImportantViews"
     android:canRetrieveWindowContent="true"/>
