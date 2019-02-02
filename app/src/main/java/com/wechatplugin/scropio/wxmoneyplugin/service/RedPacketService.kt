@@ -1,14 +1,10 @@
 package com.wechatplugin.scropio.wxmoneyplugin.service
 
 import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.Notification
-import android.opengl.Visibility
 import android.text.TextUtils
-import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import android.widget.TextView
 import com.wechatplugin.scropio.wxmoneyplugin.utils.Log
 import com.wechatplugin.scropio.wxmoneyplugin.utils.WXUtils
 import java.util.concurrent.atomic.AtomicBoolean
@@ -20,22 +16,9 @@ private val WX_Chat_Launch_UI = "com.tencent.mm.ui.LauncherUI"
 private val WX_Red_Packet_UI = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI"
 private val WX_Red_Packet_UI_7 = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyNotHookReceiveUI"         //微信7.0.0
 private val WX_Red_Packet_Detail_UI = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI"
-private val WECHAT_VIEWPAGER_LAYOUT = "com.tencent.mm.ui.mogic.WxViewPager"
-private val WX_List_View_Name = "android.widget.ListView"
-private val WX_Text_View_Name = "android.widget.TextView"
-private val LINEARLAYOUT_NAME = "android.widget.LinearLayout"
-private val WECHAT_DETAILS_CH = "红包详情"
-private val WECHAT_BETTER_LUCK_CH = "手慢了"
-private val WECHAT_EXPIRES_CH = "已超过24小时"
-private val WECHAT_VIEW_SELF_CH = "查看红包"
-private val WECHAT_VIEW_OTHERS_CH = "领取红包"
-private val WX_FriendSend_RedPacket_ForList_Tip = "[微信红包]恭喜发财，大吉大利"
 private val WX_Notification_Tip = "[微信红包]"
-private val WX_Friend_Send_RedPacket_TIP = "恭喜发财，大吉大利"
-private val WX_Already_Open = "已领取"
 private val WECHAT_PACKEY_TIP = "微信红包"
-private val WECHAT_DISCOVER_TIP = "发现"
-private val WECHAT_COMMUNICATE_TIP = "通讯录"
+private val WX_7_ID: Array<String> = arrayOf("com.tencent.mm:id/b5q", "com.tencent.mm:id/b4q")
 
 /**
  * 微信6.7.3版本的版本号
@@ -44,13 +27,10 @@ private val WX_673_VERCODE = 1360
 /**
  * 微信7.0.0版本的版本号
  */
-private val WX_7_VERCODE: Int = 1380
-private val HANDLER_CLOSE_PACKEY = 0x01
-private val HANDLER_POSTDELAY_OPEN = 0x02           //延时打开红包
+private val WX_7_VERCODE: Int = 1380        //延时打开红包
 
 class RedPacketService : AccessibilityService() {
     var flag: Boolean = false
-    var openPacketFlag = false
     var currentActivityName = WX_Chat_Launch_UI
     var currentNoteInfo = ""
     var WX_versionCode: Int = 0
@@ -92,7 +72,6 @@ class RedPacketService : AccessibilityService() {
         }
     }
 
-    @Synchronized
     private fun handleNotificationEvent(event: AccessibilityEvent) {
         val tip = event.text.toString()
         if (tip.contains(WX_Notification_Tip, true)) {
@@ -104,7 +83,6 @@ class RedPacketService : AccessibilityService() {
         }
     }
 
-    @Synchronized
     private fun handleWindowEvent(event: AccessibilityEvent) {
         when (currentActivityName) {
             //红包弹窗界面
@@ -121,7 +99,7 @@ class RedPacketService : AccessibilityService() {
             }
             //红包详情UI
             WX_Red_Packet_Detail_UI -> {
-                performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
+//                performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
             }
         }
     }
@@ -129,7 +107,6 @@ class RedPacketService : AccessibilityService() {
     /**
      * 发现红包进入聊天界面
      */
-    @Synchronized
     private fun goChatSurface(event: AccessibilityEvent) {
         val info = rootInActiveWindow ?: return
         //检查是否有红包字样
@@ -138,12 +115,35 @@ class RedPacketService : AccessibilityService() {
 
     private fun recycle(info: AccessibilityNodeInfo) {
         if (info.childCount == 0) {
-            Log.log("child weight -------${info.className}")
-            Log.log("text         -------${info.text}")
-            Log.log("windowId     -------${info.windowId}")
+            //7.0
+            WX_7_ID.apply {
+                forEach {
+                    //7.0只能根据ID来获取到控件
+                    info.findAccessibilityNodeInfosByViewId(it)?.apply {
+                        if (isEmpty()) {
+                            return@apply
+                        }
+                        forEach {
+                            if (it.text.contains("[微信红包]")) {
+                                it.parent?.parent?.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                                it.parent?.parent?.parent?.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                                return
+                            }
+                        }
+                    }
+                }
+            }
+//            //7.0以下
+//            info.text?.apply {
+//                if (this.contains("[微信红包]")) {
+//                    info.parent?.parent?.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+//                    info.parent?.parent?.parent?.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+//                    return
+//                }
+//            }
         }
         for (i in 0 until info.childCount) {
-            if (info.getChild(i) != null) {
+            info.getChild(i)?.apply {
                 recycle(info.getChild(i))
             }
         }
@@ -191,7 +191,6 @@ class RedPacketService : AccessibilityService() {
     /**
      * 点开 抢红包 開 开
      */
-    @Synchronized
     fun openRetPacked() {
         windows?.apply {
             forEach {
@@ -229,6 +228,7 @@ class RedPacketService : AccessibilityService() {
     /**
      * 打开红包   找到节点为button的直接打开
      */
+    @Synchronized
     private fun open(noteInfo: AccessibilityNodeInfo) {
         noteInfo.apply {
             if (childCount > 0) {

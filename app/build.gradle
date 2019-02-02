@@ -5,7 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     signingConfigs {
         config {
-            keyAlias 'plugin'
+            keyAlias 'plgin'
             keyPassword '123456'
             storeFile file('/Users/zhuozhuo/WXMoneyPlugin/wxplugin.jks')
             storePassword '123456'

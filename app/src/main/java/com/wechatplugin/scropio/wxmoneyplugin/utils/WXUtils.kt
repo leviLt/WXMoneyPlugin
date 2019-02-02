@@ -36,18 +36,32 @@ class WXUtils {
          * 是否在微信列表
          */
         fun isWXChatList(context: Context): Boolean {
-            var bool = false
+            var isNotList = true
             if (context is RedPacketService) {
-                val accessibilityNodeInfo = context.rootInActiveWindow
-                if (accessibilityNodeInfo != null) {
-                    bool = if (accessibilityNodeInfo.childCount > 0) {
-                        accessibilityNodeInfo.getChild(0).childCount > 1
-                    } else {
-                        false
+                context.rootInActiveWindow?.apply {
+                    this.findAccessibilityNodeInfosByText("微信")?.apply {
+                        if (this.isEmpty()) {
+                            isNotList = false
+                        }
+                    }
+                    this.findAccessibilityNodeInfosByText("发现")?.apply {
+                        if (this.isEmpty()) {
+                            isNotList = false
+                        }
+                    }
+                    this.findAccessibilityNodeInfosByText("通讯录")?.apply {
+                        if (this.isEmpty()) {
+                            isNotList = false
+                        }
+                    }
+                    this.findAccessibilityNodeInfosByText("我")?.apply {
+                        if (this.isEmpty()) {
+                            isNotList = false
+                        }
                     }
                 }
             }
-            return bool
+            return isNotList
         }
     }
 }
