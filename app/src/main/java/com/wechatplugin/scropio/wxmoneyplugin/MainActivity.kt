@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
-import androidx.core.view.accessibility.AccessibilityManagerCompat
 import com.wechatplugin.scropio.wxmoneyplugin.extensions.toast
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -71,7 +70,4 @@ class MainActivity : BaseActivity() {
         updateServiceStatus()
     }
 
-    fun openPowerStagy() {
-
-    }
 }
