@@ -42,12 +42,51 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="4dp" />
+
+
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="使用方法"
+        android:textColor="#333333"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/ll_service_container" />
+
+    <TextView
+        android:id="@+id/desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        android:lineSpacingMultiplier="2"
+        android:text="第一步：点击上方的开启按钮\n第二步：切换到无障碍服务界面找到《红包助手》\n第三步：将红包助手开启即可"
+        app:layout_constraintTop_toBottomOf="@id/title" />
+
+    <TextView
+        android:id="@+id/tip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        android:lineSpacingMultiplier="1.5"
+        android:text="注意:\n1.如果遇到一直打开已经抢完了的红包，请点击红包下方的《查看详情》\n2.如果遇到一直从好友列表跳转到已经领过红包群,在此群回复任意一条消息即可"
+        android:textColor="#F72B2B"
+        android:textSize="10dp"
+        app:layout_constraintTop_toBottomOf="@+id/desc" />
 
     <FrameLayout
         android:id="@+id/contentPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/ll_service_container"
         tools:ignore="MissingConstraints" />
 </androidx.constraintlayout.widget.ConstraintLayout>
