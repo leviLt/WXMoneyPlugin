@@ -18,4 +18,4 @@
    - 4.还有就是群聊里面的红包必须要点到详情界面去,不然就会一直打开已经点过的红包,或者已经抢完的红包
    
 ## APK下载地址
-   [APK下载地址]()
+   [APK下载地址](https://github.com/scorpioLt/WXMoneyPlugin/blob/master/apk/app-release.apk)
