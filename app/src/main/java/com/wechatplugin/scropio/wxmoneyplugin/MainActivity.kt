@@ -7,26 +7,29 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
+import com.wechatplugin.scropio.wxmoneyplugin.databinding.ActivityMainBinding
 import com.wechatplugin.scropio.wxmoneyplugin.extensions.toast
-import kotlinx.android.synthetic.main.activity_main.*
-
 class MainActivity : BaseActivity() {
-    var accessibilityManager: AccessibilityManager? = null
+    //无障碍的服务
+    private var accessibilityManager: AccessibilityManager? = null
+
+    //binding
+    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(binding.root)
         initView()
     }
 
     private fun initView() {
-        accessibilityManager = getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
-        if (accessibilityManager != null) {
-            accessibilityManager!!.addAccessibilityStateChangeListener {
-                //更新服务的状态
-                updateServiceStatus()
-            }
+        accessibilityManager =
+            getSystemService(Context.ACCESSIBILITY_SERVICE) as? AccessibilityManager
+        accessibilityManager?.addAccessibilityStateChangeListener {
+            //更新服务的状态
+            updateServiceStatus()
         }
-        switch_on_off.setOnClickListener {
+        binding.switchOnOff.setOnClickListener {
             //开启服务
             openService()
         }
@@ -34,18 +37,17 @@ class MainActivity : BaseActivity() {
 
     @SuppressLint("ServiceCast")
     private fun openService() {
-        if (switch_on_off.isChecked) {
-            toast("点击「无障碍-微信红包工具」开启插件")
+        if (binding.switchOnOff.isChecked) {
+            toast("点击「无障碍」开启插件")
         } else {
-            toast("点击「无障碍-微信红包工具」关闭插件")
+            toast("点击「无障碍」关闭插件")
         }
-
         val accessibleIntent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
         startActivity(accessibleIntent)
     }
 
     private fun updateServiceStatus() {
-        switch_on_off.isChecked = isServiceEnable()
+        binding.switchOnOff.isChecked = isServiceEnable()
     }
 
     /**
@@ -56,8 +58,8 @@ class MainActivity : BaseActivity() {
             return false
         }
         val enabledAccessibilityServiceList =
-                accessibilityManager!!.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_GENERIC)
-        enabledAccessibilityServiceList.forEach {
+            accessibilityManager?.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_GENERIC)
+        enabledAccessibilityServiceList?.forEach {
             if (it.id == "$packageName/.service.RedPacketService") {
                 return true
             }

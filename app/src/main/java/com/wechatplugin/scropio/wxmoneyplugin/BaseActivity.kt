@@ -1,9 +1,6 @@
 package com.wechatplugin.scropio.wxmoneyplugin
 
-import android.graphics.Color
 import android.os.Bundle
-import android.view.View
-import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 
 /**

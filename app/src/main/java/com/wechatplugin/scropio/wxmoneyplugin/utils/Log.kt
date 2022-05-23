@@ -18,18 +18,18 @@ class Log {
             if (BuildConfig.DEBUG) {
                 val stackTrace = Thread.currentThread().stackTrace
                 val index = 3
-                var className = stackTrace[index].className
-                var methodName = stackTrace[index].methodName
-                var lineNumber = stackTrace[index].lineNumber
+                val className = stackTrace[index].className
+                val methodName = stackTrace[index].methodName
+                val lineNumber = stackTrace[index].lineNumber
 
-                var stringBuilder = StringBuilder()
+                val stringBuilder = StringBuilder()
                 stringBuilder.append("[($className : $lineNumber )# $methodName]")
                 if (log.isNotEmpty()) {
                     log.forEach {
                         stringBuilder.append(it)
                     }
                 }
-                var threadName = Thread.currentThread().name
+                val threadName = Thread.currentThread().name
                 Log.e("Thread = $threadName", stringBuilder.toString())
             }
         }
