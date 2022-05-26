@@ -7,11 +7,23 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
+import androidx.lifecycle.lifecycleScope
 import com.wechatplugin.scropio.wxmoneyplugin.databinding.ActivityMainBinding
 import com.wechatplugin.scropio.wxmoneyplugin.extensions.toast
+import com.wechatplugin.scropio.wxmoneyplugin.http.net_coroutines.net.Repository
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@AndroidEntryPoint
 class MainActivity : BaseActivity() {
     //无障碍的服务
     private var accessibilityManager: AccessibilityManager? = null
+
+    @Inject
+    lateinit var repository: Repository
 
     //binding
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -20,7 +32,10 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         initView()
+        //获取网络动作
+        getActionByNetWork()
     }
+
 
     private fun initView() {
         accessibilityManager =
@@ -72,4 +87,18 @@ class MainActivity : BaseActivity() {
         updateServiceStatus()
     }
 
+    /**
+     * 网络请求
+     */
+    private fun getActionByNetWork() {
+        lifecycleScope.launch {
+            repository.getAction("")
+                .catch {
+                    toast(it.message ?: "")
+                }
+                .collect {
+
+                }
+        }
+    }
 }
