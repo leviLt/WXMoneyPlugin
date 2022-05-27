@@ -9,6 +9,8 @@ import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import androidx.lifecycle.lifecycleScope
 import com.wechatplugin.scropio.wxmoneyplugin.databinding.ActivityMainBinding
+import com.wechatplugin.scropio.wxmoneyplugin.extensions.killAppByPackageName
+import com.wechatplugin.scropio.wxmoneyplugin.extensions.openAppByPackage
 import com.wechatplugin.scropio.wxmoneyplugin.extensions.toast
 import com.wechatplugin.scropio.wxmoneyplugin.http.net_coroutines.net.Repository
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,10 +45,18 @@ class MainActivity : BaseActivity() {
         accessibilityManager?.addAccessibilityStateChangeListener {
             //更新服务的状态
             updateServiceStatus()
+            if (it) {
+                openAppByPackage(Constant.SHOPEE_PACKAGE_NAME)
+            } else {
+                killAppByPackageName(Constant.SHOPEE_PACKAGE_NAME)
+            }
         }
         binding.switchOnOff.setOnClickListener {
             //开启服务
             openService()
+        }
+        binding.btnOpen.setOnClickListener {
+            openAppByPackage(Constant.SHOPEE_PACKAGE_NAME)
         }
     }
 

@@ -77,4 +77,16 @@
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/ll_service_container"
         tools:ignore="MissingConstraints" />
+
+    <Button
+        android:id="@+id/btnOpen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:padding="4dp"
+        android:text="打开 Shopee App"
+        android:textAllCaps="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/desc" />
 </androidx.constraintlayout.widget.ConstraintLayout>
