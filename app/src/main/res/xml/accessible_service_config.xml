@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<accessibility-service
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="@string/accessibityDesc"
-    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged|typeNotificationStateChanged"
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeAllMask"
     android:accessibilityFeedbackType="feedbackAllMask"
+    android:accessibilityFlags="flagDefault"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/accessibityDesc"
+    android:notificationTimeout="100"
     android:packageNames="com.shopee.ph"
-    android:notificationTimeout="500"
-    android:settingsActivity="com.wechatplugin.scropio.wxmoneyplugin.MainActivity"
-    android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows|flagIncludeNotImportantViews"
-    android:canRetrieveWindowContent="true"/>
+    android:settingsActivity="com.wechatplugin.scropio.wxmoneyplugin.MainActivity" />

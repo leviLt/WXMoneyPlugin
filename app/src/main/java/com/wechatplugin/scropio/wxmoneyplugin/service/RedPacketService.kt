@@ -1,14 +1,13 @@
 package com.wechatplugin.scropio.wxmoneyplugin.service
 
 import android.accessibilityservice.AccessibilityService
-import android.app.Notification
-import android.text.TextUtils
+import android.accessibilityservice.AccessibilityServiceInfo
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import com.wechatplugin.scropio.wxmoneyplugin.Constant
-import com.wechatplugin.scropio.wxmoneyplugin.utils.Log
-import com.wechatplugin.scropio.wxmoneyplugin.utils.WXUtils
 import java.util.concurrent.atomic.AtomicBoolean
+
 
 /**
  * 包名
@@ -24,14 +23,21 @@ class RedPacketService : AccessibilityService() {
 
     //当前节点信息
     var currentNoteInfo = ""
+
     override fun onInterrupt() {
+        Log.e("TAG", "onInterrupt====>")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.e("TAG", "onDestroy====>")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        Log.e("TAG", "onAccessibilityEvent====>${event.toString()}")
         if (event == null) {
             return
         }
-        Log.log(event.className.toString())
         if (!flag) {
             flag = true
             setCurrentActivityName(event)
@@ -49,16 +55,23 @@ class RedPacketService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        //获取版本号
-        Log.log("onServiceConnected====>")
+        Log.e("TAG", "onServiceConnected====>")
+        val info = AccessibilityServiceInfo()
+        info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK
+        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_ALL_MASK
+        info.notificationTimeout = 100
+        info.packageNames = arrayOf(Constant.SHOPEE_PACKAGE_NAME)
+        info.flags = AccessibilityServiceInfo.DEFAULT
+        serviceInfo = info
     }
 
     private fun setCurrentActivityName(event: AccessibilityEvent) {
         val activityName = event.className.toString()
         currentNoteInfo = event.className.toString()
-        if (activityName.startsWith(Constant.SHOPEE_PACKAGE_NAME, true)) {
+        Log.e("TAG", "currentActivityName====>${activityName}")
+        if (activityName.startsWith(Constant.SHOPEE_HOME_ACTIVITY, true)) {
             currentActivityName = activityName
-            Log.log(activityName)
+            Log.e("TAG", "currentActivityName====>")
         }
     }
 
